@@ -2,6 +2,8 @@ package app.revanced.integrations.patches.misc.requests;
 
 import static app.revanced.integrations.utils.StringRef.str;
 
+import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
 import android.os.Build;
 
 import org.json.JSONException;
@@ -113,15 +115,17 @@ public final class PlayerRoutes {
     private static final String IOS_CLIENT_VERSION = "19.20.2";
     /**
      * The device machine id for the iPhone 14 Pro Max, used to get 60fps with the iOS client.
+     * "iPhone8,1" is iPhone 6s (the oldest iPhone supports iOS 13).
      *
      * <p>
      * See <a href="https://gist.github.com/adamawolf/3048717">this GitHub Gist</a> for more
      * information.
      * </p>
      */
-    private static final String IOS_DEVICE_MODEL = "iPhone15,3";
-    private static final String IOS_OS_VERSION = "17.5.1.21F90";
-    private static final String IOS_USER_AGENT_VERSION = "17_5_1";
+    private static final boolean VP9_SUPPORTED = deviceHasVP9HardwareDecoding();
+    private static final String IOS_DEVICE_MODEL = VP9_SUPPORTED ? "iPhone15,3" : "iPhone8,1";
+    private static final String IOS_OS_VERSION = VP9_SUPPORTED ? "17.5.1.21F90" : "13.7.17H35";
+    private static final String IOS_USER_AGENT_VERSION = VP9_SUPPORTED ? "17_5_1" : "13_7";
     private static final String IOS_USER_AGENT = "com.google.ios.youtube/" +
             IOS_CLIENT_VERSION +
             "(" +
@@ -339,6 +343,25 @@ public final class PlayerRoutes {
         WEB_INNER_TUBE_BODY = webInnerTubeBody.toString();
     }
 
+    private static boolean deviceHasVP9HardwareDecoding() {
+        MediaCodecList codecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+
+        for (MediaCodecInfo codecInfo : codecList.getCodecInfos()) {
+            final boolean isHardwareAccelerated = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                    ? codecInfo.isHardwareAccelerated()
+                    : !codecInfo.getName().startsWith("OMX.google") && !codecInfo.getName().startsWith("c2.android");
+            if (isHardwareAccelerated && !codecInfo.isEncoder()) {
+                for (String type : codecInfo.getSupportedTypes()) {
+                    if (type.equals("video/x-vnd.on2.vp9")) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     private PlayerRoutes() {
     }
 
@@ -361,31 +384,32 @@ public final class PlayerRoutes {
     }
 
     public enum ClientType {
-        ANDROID(3, ANDROID_DEVICE_MODEL, ANDROID_CLIENT_VERSION, ANDROID_INNER_TUBE_BODY, ANDROID_USER_AGENT),
-        ANDROID_EMBEDDED_PLAYER(55, ANDROID_DEVICE_MODEL, ANDROID_CLIENT_VERSION, ANDROID_EMBED_INNER_TUBE_BODY, ANDROID_USER_AGENT),
-        ANDROID_TESTSUITE(30, ANDROID_DEVICE_MODEL, ANDROID_TESTSUITE_CLIENT_VERSION, ANDROID_TESTSUITE_INNER_TUBE_BODY, ANDROID_USER_AGENT),
-        ANDROID_UNPLUGGED(29, ANDROID_UNPLUGGED_DEVICE_MODEL, ANDROID_UNPLUGGED_CLIENT_VERSION, ANDROID_UNPLUGGED_INNER_TUBE_BODY, ANDROID_UNPLUGGED_USER_AGENT),
-        ANDROID_VR(28, ANDROID_VR_DEVICE_MODEL, ANDROID_VR_CLIENT_VERSION, ANDROID_VR_INNER_TUBE_BODY, ANDROID_VR_USER_AGENT),
-        IOS(5, IOS_DEVICE_MODEL, IOS_CLIENT_VERSION, IOS_INNER_TUBE_BODY, IOS_USER_AGENT),
+        ANDROID(3, ANDROID_DEVICE_MODEL, ANDROID_CLIENT_VERSION, ANDROID_INNER_TUBE_BODY, ANDROID_OS_RELEASE_VERSION, ANDROID_USER_AGENT),
+        ANDROID_EMBEDDED_PLAYER(55, ANDROID_DEVICE_MODEL, ANDROID_CLIENT_VERSION, ANDROID_EMBED_INNER_TUBE_BODY, ANDROID_OS_RELEASE_VERSION, ANDROID_USER_AGENT),
+        ANDROID_TESTSUITE(30, ANDROID_DEVICE_MODEL, ANDROID_TESTSUITE_CLIENT_VERSION, ANDROID_TESTSUITE_INNER_TUBE_BODY, ANDROID_OS_RELEASE_VERSION, ANDROID_USER_AGENT),
+        ANDROID_UNPLUGGED(29, ANDROID_UNPLUGGED_DEVICE_MODEL, ANDROID_UNPLUGGED_CLIENT_VERSION, ANDROID_UNPLUGGED_INNER_TUBE_BODY, ANDROID_UNPLUGGED_OS_RELEASE_VERSION, ANDROID_UNPLUGGED_USER_AGENT),
+        ANDROID_VR(28, ANDROID_VR_DEVICE_MODEL, ANDROID_VR_CLIENT_VERSION, ANDROID_VR_INNER_TUBE_BODY, ANDROID_VR_OS_RELEASE_VERSION, ANDROID_VR_USER_AGENT),
+        IOS(5, IOS_DEVICE_MODEL, IOS_CLIENT_VERSION, IOS_INNER_TUBE_BODY, IOS_OS_VERSION, IOS_USER_AGENT),
         // No suitable model name was found for TVHTML5_SIMPLY_EMBEDDED_PLAYER. Use the model name of ANDROID.
-        TVHTML5_SIMPLY_EMBEDDED_PLAYER(85, ANDROID_DEVICE_MODEL, TVHTML5_SIMPLY_EMBEDDED_PLAYER_CLIENT_VERSION, TVHTML5_SIMPLY_EMBED_INNER_TUBE_BODY, TVHTML5_SIMPLY_EMBEDDED_PLAYER_USER_AGENT),
+        TVHTML5_SIMPLY_EMBEDDED_PLAYER(85, ANDROID_DEVICE_MODEL, TVHTML5_SIMPLY_EMBEDDED_PLAYER_CLIENT_VERSION, TVHTML5_SIMPLY_EMBED_INNER_TUBE_BODY, TVHTML5_SIMPLY_EMBEDDED_PLAYER_CLIENT_VERSION, TVHTML5_SIMPLY_EMBEDDED_PLAYER_USER_AGENT),
         // No suitable model name was found for WEB. Use the model name of ANDROID.
-        WEB(1, ANDROID_DEVICE_MODEL, WEB_CLIENT_VERSION, WEB_INNER_TUBE_BODY, WEB_USER_AGENT);
+        WEB(1, ANDROID_DEVICE_MODEL, WEB_CLIENT_VERSION, WEB_INNER_TUBE_BODY, WEB_CLIENT_VERSION, WEB_USER_AGENT);
 
         public final String friendlyName;
         public final int id;
         public final String model;
         public final String version;
         public final String innerTubeBody;
+        public final String osVersion;
         public final String userAgent;
 
-        ClientType(int id, String model, String version,
-                   String innerTubeBody, String userAgent) {
+        ClientType(int id, String model, String version, String innerTubeBody, String osVersion, String userAgent) {
             this.friendlyName = str("revanced_spoof_client_options_entry_" + name().toLowerCase());
             this.id = id;
             this.model = model;
             this.version = version;
             this.innerTubeBody = innerTubeBody;
+            this.osVersion = osVersion;
             this.userAgent = userAgent;
         }
     }
