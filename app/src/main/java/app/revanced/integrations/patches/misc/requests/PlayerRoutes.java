@@ -46,7 +46,7 @@ public final class PlayerRoutes {
     private static final String ANDROID_TESTSUITE_CLIENT_VERSION = "1.9";
 
 
-    private static final String ANDROID_UNPLUGGED_CLIENT_VERSION = "8.21.0";
+    private static final String ANDROID_UNPLUGGED_CLIENT_VERSION = "8.31.0";
     /**
      * The device machine id for the Chromecast with Google TV 4K.
      *
@@ -112,7 +112,7 @@ public final class PlayerRoutes {
      * Store page of the YouTube app</a>, in the {@code What’s New} section.
      * </p>
      */
-    private static final String IOS_CLIENT_VERSION = "19.20.2";
+    private static final String IOS_CLIENT_VERSION = "19.30.2";
     /**
      * The device machine id for the iPhone 14 Pro Max, used to get 60fps with the iOS client.
      * "iPhone8,1" is iPhone 6s (the oldest iPhone supports iOS 13).
@@ -124,8 +124,8 @@ public final class PlayerRoutes {
      */
     private static final boolean VP9_SUPPORTED = deviceHasVP9HardwareDecoding();
     private static final String IOS_DEVICE_MODEL = VP9_SUPPORTED ? "iPhone15,3" : "iPhone8,1";
-    private static final String IOS_OS_VERSION = VP9_SUPPORTED ? "17.5.1.21F90" : "13.7.17H35";
-    private static final String IOS_USER_AGENT_VERSION = VP9_SUPPORTED ? "17_5_1" : "13_7";
+    private static final String IOS_OS_VERSION = VP9_SUPPORTED ? "17.6.21G80" : "13.7.17H35";
+    private static final String IOS_USER_AGENT_VERSION = VP9_SUPPORTED ? "17_6" : "13_7";
     private static final String IOS_USER_AGENT = "com.google.ios.youtube/" +
             IOS_CLIENT_VERSION +
             "(" +
@@ -138,10 +138,11 @@ public final class PlayerRoutes {
     private static final String TVHTML5_SIMPLY_EMBEDDED_PLAYER_USER_AGENT = "Mozilla/5.0 (SMART-TV; LINUX; Tizen 6.5)" +
             " AppleWebKit/537.36 (KHTML, like Gecko)" +
             " 85.0.4183.93/6.5 TV Safari/537.36";
-    private static final String WEB_CLIENT_VERSION = "2.20240304.00.00";
+    private static final String WEB_CLIENT_VERSION = "2.20240726.00.00";
+    private static final String WEB_OS_VERSION = "10";
     private static final String WEB_USER_AGENT = "Mozilla/5.0 (Linux; Android 10; SM-G981B)" +
             " AppleWebKit/537.36 (KHTML, like Gecko)" +
-            " Chrome/80.0.3987.162 Mobile Safari/537.36";
+            " Chrome/124.0.0.0 Mobile Safari/537.36";
 
     private static final String ANDROID_INNER_TUBE_BODY;
     private static final String ANDROID_EMBED_INNER_TUBE_BODY;
@@ -393,7 +394,7 @@ public final class PlayerRoutes {
         // No suitable model name was found for TVHTML5_SIMPLY_EMBEDDED_PLAYER. Use the model name of ANDROID.
         TVHTML5_SIMPLY_EMBEDDED_PLAYER(85, ANDROID_DEVICE_MODEL, TVHTML5_SIMPLY_EMBEDDED_PLAYER_CLIENT_VERSION, TVHTML5_SIMPLY_EMBED_INNER_TUBE_BODY, TVHTML5_SIMPLY_EMBEDDED_PLAYER_CLIENT_VERSION, TVHTML5_SIMPLY_EMBEDDED_PLAYER_USER_AGENT),
         // No suitable model name was found for WEB. Use the model name of ANDROID.
-        WEB(1, ANDROID_DEVICE_MODEL, WEB_CLIENT_VERSION, WEB_INNER_TUBE_BODY, WEB_CLIENT_VERSION, WEB_USER_AGENT);
+        WEB(1, ANDROID_DEVICE_MODEL, WEB_CLIENT_VERSION, WEB_INNER_TUBE_BODY, WEB_OS_VERSION, WEB_USER_AGENT);
 
         public final String friendlyName;
         public final int id;
