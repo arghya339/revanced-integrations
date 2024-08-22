@@ -16,6 +16,7 @@ import java.util.concurrent.TimeoutException;
 
 import app.revanced.integrations.patches.misc.requests.PlayerRoutes.ClientType;
 import app.revanced.integrations.settings.SettingsEnum;
+import app.revanced.integrations.shared.PlayerType;
 
 /**
  * @noinspection ALL
@@ -218,6 +219,18 @@ public class SpoofClientPatch {
         }
 
         return original;
+    }
+
+    /**
+     * Injection point.
+     * This fix only works if {@link BackgroundPlaybackPatch} is included.
+     */
+    public static boolean forceEnableBackgroundPlayback() {
+        if (SPOOF_CLIENT_ENABLED && getSpoofClientType() == ClientType.IOS) {
+            return !PlayerType.getCurrent().isNoneHiddenOrSlidingMinimized();
+        }
+
+        return false;
     }
 
     /**

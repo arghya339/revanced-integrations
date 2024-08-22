@@ -56,4 +56,20 @@ enum class PlayerType {
     fun isNoneOrHidden(): Boolean {
         return this == NONE || this == HIDDEN
     }
+
+    /**
+     * Check if the current player type is
+     * [NONE], [HIDDEN], [WATCH_WHILE_SLIDING_MINIMIZED_DISMISSED].
+     *
+     * Useful to check if a Short is being played or opened.
+     *
+     * Usually covers all use cases with no false positives, except if called from some hooks
+     * when spoofing to an old version this will return false even
+     * though a Short is being opened or is on screen (see [isNoneHiddenOrMinimized]).
+     *
+     * @return If nothing, a Short, or a regular video is sliding off screen to a dismissed or hidden state.
+     */
+    fun isNoneHiddenOrSlidingMinimized(): Boolean {
+        return isNoneOrHidden() || this == WATCH_WHILE_SLIDING_MINIMIZED_DISMISSED
+    }
 }
