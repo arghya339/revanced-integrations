@@ -170,6 +170,7 @@ public enum SettingsEnum {
     SPOOF_CLIENT_SHORTS("revanced_spoof_client_shorts", ClientType.IOS.toString(), ReturnType.STRING, true),
     SPOOF_CLIENT_FALLBACK("revanced_spoof_client_fallback", ClientType.ANDROID_TESTSUITE.toString(), ReturnType.STRING, true),
     SPOOF_CLIENT_IOS_HISTORY_FIX("revanced_spoof_client_ios_history_fix", false, ReturnType.BOOLEAN),
+    IGNORE_CHECK_WATCH_HISTORY_DOMAIN_NAME("revanced_ignore_check_watch_history_domain_name", false, ReturnType.BOOLEAN),
 
     //RYD Settings
     RYD_USER_ID("ryd_userId", null, SharedPrefHelper.SharedPrefNames.RYD, ReturnType.STRING),
