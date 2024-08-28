@@ -169,6 +169,7 @@ public enum SettingsEnum {
     SPOOF_CLIENT_LIVESTREAM("revanced_spoof_client_livestream", ClientType.ANDROID_VR.toString(), ReturnType.STRING, true),
     SPOOF_CLIENT_SHORTS("revanced_spoof_client_shorts", ClientType.IOS.toString(), ReturnType.STRING, true),
     SPOOF_CLIENT_FALLBACK("revanced_spoof_client_fallback", ClientType.ANDROID_TESTSUITE.toString(), ReturnType.STRING, true),
+    SPOOF_CLIENT_IOS_HISTORY_FIX("revanced_spoof_client_ios_history_fix", false, ReturnType.BOOLEAN),
 
     //RYD Settings
     RYD_USER_ID("ryd_userId", null, SharedPrefHelper.SharedPrefNames.RYD, ReturnType.STRING),
