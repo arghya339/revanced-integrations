@@ -166,7 +166,7 @@ public enum SettingsEnum {
     SPOOF_CLIENT("revanced_spoof_client", false, ReturnType.BOOLEAN, true),
     SPOOF_CLIENT_STATS_FOR_NERDS("revanced_spoof_client_stats_for_nerds", true, ReturnType.BOOLEAN),
     SPOOF_CLIENT_GENERAL("revanced_spoof_client_general", ClientType.IOS.toString(), ReturnType.STRING, true),
-    SPOOF_CLIENT_LIVESTREAM("revanced_spoof_client_livestream", ClientType.ANDROID_VR.toString(), ReturnType.STRING, true),
+    SPOOF_CLIENT_LIVESTREAM("revanced_spoof_client_livestream", ClientType.IOS.toString(), ReturnType.STRING, true),
     SPOOF_CLIENT_SHORTS("revanced_spoof_client_shorts", ClientType.IOS.toString(), ReturnType.STRING, true),
     SPOOF_CLIENT_FALLBACK("revanced_spoof_client_fallback", ClientType.ANDROID_TESTSUITE.toString(), ReturnType.STRING, true),
     SPOOF_CLIENT_IOS_HISTORY_FIX("revanced_spoof_client_ios_history_fix", false, ReturnType.BOOLEAN),

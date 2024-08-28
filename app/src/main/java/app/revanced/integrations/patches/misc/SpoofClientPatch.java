@@ -226,14 +226,12 @@ public class SpoofClientPatch {
 
     /**
      * Injection point.
-     * This fix only works if {@link BackgroundPlaybackPatch} is included.
+     * When spoofing the client to iOS, background audio only playback of livestreams fails.
+     * Return true to force enable audio background play.
      */
-    public static boolean forceEnableBackgroundPlayback() {
-        if (SPOOF_CLIENT_ENABLED && getSpoofClientType() == ClientType.IOS) {
-            return !PlayerType.getCurrent().isNoneHiddenOrSlidingMinimized();
-        }
-
-        return false;
+    public static boolean overrideBackgroundAudioPlayback() {
+        return SPOOF_CLIENT_ENABLED &&
+                !PlayerType.getCurrent().isNoneHiddenOrSlidingMinimized();
     }
 
     private static final Uri VIDEO_STATS_PLAYBACK_URI = Uri.parse("https://www.youtube.com/api/stats/playback?ns=yt&ver=2&final=1");
