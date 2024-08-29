@@ -5,7 +5,6 @@ plugins {
 
 android {
     compileSdk = 33
-    buildToolsVersion = "33.0.2"
     namespace = "app.revanced.integrations"
 
     defaultConfig {
@@ -47,7 +46,7 @@ android {
 
 dependencies {
     compileOnly(project(mapOf("path" to ":dummy")))
-    compileOnly("androidx.annotation:annotation:1.8.0")
+    compileOnly("androidx.annotation:annotation:1.8.2")
 }
 
 tasks.register("publish") { dependsOn("build") }
