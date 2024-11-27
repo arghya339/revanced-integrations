@@ -25,6 +25,6 @@ public class SkipSegmentView {
 
         lastNotifiedSegment = segment;
         String skipMessage = segment.category.getSkipMessage().toString();
-        Toast.makeText(ReVancedUtils.getContext(), skipMessage, Toast.LENGTH_SHORT).show();
+        Toast.makeText(ReVancedUtils.getContext(), "SponsorBlock: " + skipMessage, Toast.LENGTH_SHORT).show();
     }
 }
