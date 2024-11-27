@@ -18,6 +18,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+import android.view.View;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +28,7 @@ import app.revanced.integrations.patches.button.AutoRepeat;
 import app.revanced.integrations.patches.button.Copy;
 import app.revanced.integrations.patches.button.CopyWithTimeStamp;
 import app.revanced.integrations.patches.button.Download;
+import app.revanced.integrations.patches.misc.client.DeviceHardwareSupport;
 import app.revanced.integrations.patches.video.VideoQualityPatch;
 import app.revanced.integrations.settings.SettingsEnum;
 import app.revanced.integrations.utils.LogHelper;
@@ -164,6 +166,7 @@ public class ReVancedSettingsFragment extends PreferenceFragment {
 
             setPatchesInfomation();
             setSpoofAppVersionInfo();
+            setSpoofStreamDataIosH264Availability();
 
             for (int i = 0; i < DownloaderNameList.length ; i++) {
                 int index = i;
@@ -310,6 +313,17 @@ public class ReVancedSettingsFragment extends PreferenceFragment {
                 .setIntent(
                         new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/kitadai31/revanced-patches-android6-7/wiki/Spoof-app-version-information"))
                 );
+    }
+
+    public void setSpoofStreamDataIosH264Availability() {
+        if (!DeviceHardwareSupport.DEVICE_HAS_HARDWARE_DECODING_VP9) {
+            String msg = "H.264 will always be used because your device doesn't support VP9.";
+            SwitchPreference pref = (SwitchPreference) findPreferenceOnScreen("revanced_spoof_streaming_data_ios_force_avc");
+            pref.setEnabled(false);
+            pref.setSummary(msg);
+            pref.setSummaryOff(msg);
+            pref.setSummaryOn(msg);
+        }
     }
 
     public static void reboot(Activity activity) {

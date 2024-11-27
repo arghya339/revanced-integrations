@@ -1,0 +1,289 @@
+package app.revanced.integrations.patches.misc.requests;
+
+import static app.revanced.integrations.patches.misc.requests.PlayerRoutes.GET_LIVE_STREAM_RENDERER;
+import static app.revanced.integrations.patches.misc.requests.PlayerRoutes.GET_STREAMING_DATA;
+
+import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import app.revanced.integrations.patches.misc.client.AppClient.ClientType;
+import app.revanced.integrations.requests.Requester;
+import app.revanced.integrations.settings.SettingsEnum;
+import app.revanced.integrations.utils.Logger;
+import app.revanced.integrations.utils.ReVancedUtils;
+
+public class StreamingDataRequest {
+    private static final boolean SPOOF_STREAMING_DATA_IOS_COMPATIBILITY = SettingsEnum.SPOOF_STREAMING_DATA_IOS_COMPATIBILITY.getBoolean();
+
+    private static final ClientType[] allClientTypes = {
+            ClientType.IOS,
+            ClientType.ANDROID_VR,
+            ClientType.ANDROID_UNPLUGGED,
+    };
+
+    private static final ClientType[] clientTypesToUse;
+
+    static {
+        ClientType preferredClient = ClientType.valueOf(SettingsEnum.SPOOF_STREAMING_DATA_TYPE.getString());
+        clientTypesToUse = new ClientType[allClientTypes.length];
+
+        clientTypesToUse[0] = preferredClient;
+
+        int i = 1;
+        for (ClientType c : allClientTypes) {
+            if (c != preferredClient) {
+                clientTypesToUse[i++] = c;
+            }
+        }
+    }
+
+    private static ClientType lastSpoofedClientType;
+
+    public static String getLastSpoofedClientName() {
+        return lastSpoofedClientType == null
+                ? "Unknown"
+                : lastSpoofedClientType.friendlyName;
+    }
+
+    /**
+     * TCP connection and HTTP read timeout.
+     */
+    private static final int HTTP_TIMEOUT_MILLISECONDS = 10 * 1000;
+
+    /**
+     * Any arbitrarily large value, but must be at least twice {@link #HTTP_TIMEOUT_MILLISECONDS}
+     */
+    private static final int MAX_MILLISECONDS_TO_WAIT_FOR_FETCH = 20 * 1000;
+
+    @GuardedBy("itself")
+    private static final Map<String, StreamingDataRequest> cache = Collections.synchronizedMap(
+            new LinkedHashMap<>(100) {
+                /**
+                 * Cache limit must be greater than the maximum number of videos open at once,
+                 * which theoretically is more than 4 (3 Shorts + one regular minimized video).
+                 * But instead use a much larger value, to handle if a video viewed a while ago
+                 * is somehow still referenced.  Each stream is a small array of Strings
+                 * so memory usage is not a concern.
+                 */
+                private static final int CACHE_LIMIT = 50;
+
+                @Override
+                protected boolean removeEldestEntry(Entry eldest) {
+                    return size() > CACHE_LIMIT; // Evict the oldest entry if over the cache limit.
+                }
+            });
+
+    public static void fetchRequest(@NonNull String videoId, Map<String, String> fetchHeaders) {
+        cache.put(videoId, new StreamingDataRequest(videoId, fetchHeaders));
+    }
+
+    @Nullable
+    public static StreamingDataRequest getRequestForVideoId(@Nullable String videoId) {
+        return cache.get(videoId);
+    }
+
+    private static void handleConnectionError(String toastMessage, @Nullable Exception ex) {
+        Logger.printInfo(() -> toastMessage, ex);
+    }
+
+    private static boolean isUnplayableOrLiveStream(ClientType clientType, String videoId) {
+        if (!SPOOF_STREAMING_DATA_IOS_COMPATIBILITY || clientType != ClientType.IOS) {
+            return false;
+        }
+        Objects.requireNonNull(videoId);
+        try {
+            HttpURLConnection connection = PlayerRoutes.getPlayerResponseConnectionFromRoute(GET_LIVE_STREAM_RENDERER, clientType);
+            String innerTubeBody = PlayerRoutes.createInnertubeBody(clientType, videoId);
+            byte[] requestBody = innerTubeBody.getBytes(StandardCharsets.UTF_8);
+            connection.setFixedLengthStreamingMode(requestBody.length);
+            connection.getOutputStream().write(requestBody);
+
+            final int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                JSONObject playerResponse = Requester.parseJSONObject(connection);
+                final boolean isPlayabilityOk = isPlayabilityStatusOk(playerResponse);
+                final boolean isLiveStream = isLiveStream(playerResponse);
+                return !isPlayabilityOk || isLiveStream;
+            }
+
+            // Always show a toast for this, as a non 200 response means something is broken.
+            handleConnectionError("Fetch livestreams not available: " + responseCode, null);
+        } catch (SocketTimeoutException ex) {
+            handleConnectionError("Fetch livestreams temporarily not available (API timed out)", ex);
+        } catch (IOException ex) {
+            handleConnectionError("Fetch livestreams temporarily not available: " + ex.getMessage(), ex);
+        } catch (Exception ex) {
+            Logger.printException(() -> "Fetch livestreams failed", ex); // Should never happen.
+        }
+
+        return true;
+    }
+
+    private static boolean isPlayabilityStatusOk(@NonNull JSONObject playerResponse) {
+        try {
+            return playerResponse.getJSONObject("playabilityStatus").getString("status").equals("OK");
+        } catch (JSONException e) {
+            Logger.printDebug(() -> "Failed to get playabilityStatus for response: " + playerResponse);
+        }
+
+        return false;
+    }
+
+    private static boolean isLiveStream(@NonNull JSONObject playerResponse) {
+        try {
+            return playerResponse.getJSONObject("videoDetails").getBoolean("isLiveContent");
+        } catch (JSONException e) {
+            Logger.printDebug(() -> "Failed to get videoDetails for response: " + playerResponse);
+        }
+
+        return false;
+    }
+
+    private static final String[] REQUEST_HEADER_KEYS = {
+            "Authorization", // Available only to logged in users.
+            "X-GOOG-API-FORMAT-VERSION",
+            "X-Goog-Visitor-Id"
+    };
+
+    @Nullable
+    private static HttpURLConnection send(ClientType clientType, String videoId,
+                                          Map<String, String> playerHeaders) {
+        Objects.requireNonNull(clientType);
+        Objects.requireNonNull(videoId);
+        Objects.requireNonNull(playerHeaders);
+
+        final long startTime = System.currentTimeMillis();
+        String clientTypeName = clientType.name();
+        Logger.printDebug(() -> "Fetching video streams for: " + videoId + " using client: " + clientType.name());
+
+        try {
+            HttpURLConnection connection = PlayerRoutes.getPlayerResponseConnectionFromRoute(GET_STREAMING_DATA, clientType);
+            connection.setConnectTimeout(HTTP_TIMEOUT_MILLISECONDS);
+            connection.setReadTimeout(HTTP_TIMEOUT_MILLISECONDS);
+
+            for (String key : REQUEST_HEADER_KEYS) {
+                String value = playerHeaders.get(key);
+                if (value != null) {
+                    connection.setRequestProperty(key, value);
+                }
+            }
+
+            String innerTubeBody = PlayerRoutes.createInnertubeBody(clientType, videoId);
+            byte[] requestBody = innerTubeBody.getBytes(StandardCharsets.UTF_8);
+            connection.setFixedLengthStreamingMode(requestBody.length);
+            connection.getOutputStream().write(requestBody);
+
+            final int responseCode = connection.getResponseCode();
+            if (responseCode == 200) return connection;
+
+            handleConnectionError(clientTypeName + " not available with response code: "
+                            + responseCode + " message: " + connection.getResponseMessage(),
+                    null);
+        } catch (SocketTimeoutException ex) {
+            handleConnectionError("Connection timeout", ex);
+        } catch (IOException ex) {
+            handleConnectionError("Network error", ex);
+        } catch (Exception ex) {
+            Logger.printException(() -> "send failed", ex);
+        } finally {
+            Logger.printDebug(() -> "video: " + videoId + " took: " + (System.currentTimeMillis() - startTime) + "ms");
+        }
+
+        return null;
+    }
+
+    private static ByteBuffer fetch(@NonNull String videoId, Map<String, String> playerHeaders) {
+        lastSpoofedClientType = null;
+
+        // Retry with different client if empty response body is received.
+        for (ClientType clientType : clientTypesToUse) {
+            if (isUnplayableOrLiveStream(clientType, videoId)) {
+                Logger.printDebug(() -> "Ignore IOS spoofing as it is unplayable or a live stream (video: " + videoId + ")");
+                continue;
+            }
+
+            HttpURLConnection connection = send(clientType, videoId, playerHeaders);
+            if (connection != null) {
+                try {
+                    // gzip encoding doesn't response with content length (-1),
+                    // but empty response body does.
+                    if (connection.getContentLength() != 0) {
+                        try (InputStream inputStream = new BufferedInputStream(connection.getInputStream())) {
+                            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                                byte[] buffer = new byte[8192];
+                                int bytesRead;
+                                while ((bytesRead = inputStream.read(buffer)) >= 0) {
+                                    baos.write(buffer, 0, bytesRead);
+                                }
+                                lastSpoofedClientType = clientType;
+
+                                return ByteBuffer.wrap(baos.toByteArray());
+                            }
+                        }
+                    }
+                } catch (IOException ex) {
+                    Logger.printException(() -> "Fetch failed while processing response data", ex);
+                }
+            }
+        }
+
+        handleConnectionError("Could not fetch any client streams", null);
+        return null;
+    }
+
+    private final String videoId;
+    private final Future<ByteBuffer> future;
+
+    private StreamingDataRequest(String videoId, Map<String, String> playerHeaders) {
+        Objects.requireNonNull(playerHeaders);
+        this.videoId = videoId;
+        this.future = ReVancedUtils.submitOnBackgroundThread(() -> fetch(videoId, playerHeaders));
+    }
+
+    public boolean fetchCompleted() {
+        return future.isDone();
+    }
+
+    @Nullable
+    public ByteBuffer getStream() {
+        try {
+            return future.get(MAX_MILLISECONDS_TO_WAIT_FOR_FETCH, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException ex) {
+            Logger.printInfo(() -> "getStream timed out", ex);
+        } catch (InterruptedException ex) {
+            Logger.printException(() -> "getStream interrupted", ex);
+            Thread.currentThread().interrupt(); // Restore interrupt status flag.
+        } catch (ExecutionException ex) {
+            Logger.printException(() -> "getStream failure", ex);
+        }
+
+        return null;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "StreamingDataRequest{" + "videoId='" + videoId + '\'' + '}';
+    }
+}

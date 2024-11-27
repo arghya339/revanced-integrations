@@ -3,7 +3,7 @@ package app.revanced.integrations.settings;
 import android.content.Context;
 import android.util.Log;
 
-import app.revanced.integrations.patches.misc.requests.PlayerRoutes.ClientType;
+import app.revanced.integrations.patches.misc.client.AppClient.ClientType;
 import app.revanced.integrations.utils.LogHelper;
 import app.revanced.integrations.utils.ReVancedUtils;
 import app.revanced.integrations.utils.SharedPrefHelper;
@@ -163,13 +163,15 @@ public enum SettingsEnum {
     ENABLE_PHONE_LAYOUT("revanced_enable_phone_layout", false, ReturnType.BOOLEAN, true, "revanced_reboot_warning_phone"),
     ENABLE_VP9_CODEC("revanced_enable_vp9_codec", false, ReturnType.BOOLEAN, true, "revanced_reboot_warning_vp9"),
     SPOOF_APP_VERSION_TARGET("revanced_spoof_app_version_target", "", ReturnType.STRING, true),
-    SPOOF_CLIENT("revanced_spoof_client", false, ReturnType.BOOLEAN, true),
-    SPOOF_CLIENT_STATS_FOR_NERDS("revanced_spoof_client_stats_for_nerds", true, ReturnType.BOOLEAN),
-    SPOOF_CLIENT_GENERAL("revanced_spoof_client_general", ClientType.IOS.toString(), ReturnType.STRING, true),
-    SPOOF_CLIENT_LIVESTREAM("revanced_spoof_client_livestream", ClientType.IOS.toString(), ReturnType.STRING, true),
-    SPOOF_CLIENT_SHORTS("revanced_spoof_client_shorts", ClientType.IOS.toString(), ReturnType.STRING, true),
-    SPOOF_CLIENT_FALLBACK("revanced_spoof_client_fallback", ClientType.ANDROID_TESTSUITE.toString(), ReturnType.STRING, true),
-    SPOOF_CLIENT_IOS_HISTORY_FIX("revanced_spoof_client_ios_history_fix", false, ReturnType.BOOLEAN),
+
+    // PreferenceScreen: Miscellaneous - Spoof streaming data
+    // The order of the settings should not be changed otherwise the app may crash
+    SPOOF_STREAMING_DATA("revanced_spoof_streaming_data", true, ReturnType.BOOLEAN, true),
+    SPOOF_STREAMING_DATA_IOS_FORCE_AVC("revanced_spoof_streaming_data_ios_force_avc", false, ReturnType.BOOLEAN, true),
+    SPOOF_STREAMING_DATA_IOS_COMPATIBILITY("revanced_spoof_streaming_data_ios_compatibility", true, ReturnType.BOOLEAN, true),
+    SPOOF_STREAMING_DATA_TYPE("revanced_spoof_streaming_data_type", ClientType.IOS.toString(), ReturnType.STRING, true),
+    SPOOF_STREAMING_DATA_STATS_FOR_NERDS("revanced_spoof_streaming_data_stats_for_nerds", true, ReturnType.BOOLEAN),
+
     IGNORE_CHECK_WATCH_HISTORY_DOMAIN_NAME("revanced_ignore_check_watch_history_domain_name", false, ReturnType.BOOLEAN),
 
     //RYD Settings
