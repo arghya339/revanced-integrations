@@ -30,8 +30,8 @@ public class Download {
     static Animation fadeOut;
     public static boolean isButtonEnabled;
     static boolean isShowing;
-    public static final String[] DownloaderNameList = {"PowerTube", "NewPipe", "NewPipe x SponsorBlock", "Seal", "SnapTube"};
-    public static final String[] DownloaderPackageNameList = {"ussr.razar.youtube_dl", "org.schabi.newpipe", "org.polymorphicshade.newpipe", "com.junkfood.seal", "com.snaptube.premium"};
+    public static final String[] DownloaderNameList = {"PowerTube", "NewPipe", "NewPipe x SponsorBlock", "Seal", "SnapTube", "YTDLnis", "Tubular"};
+    public static final String[] DownloaderPackageNameList = {"ussr.razar.youtube_dl", "org.schabi.newpipe", "org.polymorphicshade.newpipe", "com.junkfood.seal", "com.snaptube.premium", "com.deniscerri.ytdl", "org.polymorphicshade.tubular"};
 
     public static void initialize(Object obj) {
         try {
@@ -42,7 +42,7 @@ public class Download {
             imageView.setOnClickListener(view -> {
 
                 final var context = view.getContext();
-                String downloaderPackageName = SettingsEnum.DOWNLOADER_PACKAGE_NAME.getString() == null ? "ussr.razar.youtube_dl" : SettingsEnum.DOWNLOADER_PACKAGE_NAME.getString();
+                String downloaderPackageName = SettingsEnum.DOWNLOADER_PACKAGE_NAME.getString() == null ? "com.junkfood.seal" : SettingsEnum.DOWNLOADER_PACKAGE_NAME.getString();
 
                 boolean packageEnabled = false;
                 try {

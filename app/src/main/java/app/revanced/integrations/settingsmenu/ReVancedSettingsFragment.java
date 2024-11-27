@@ -46,9 +46,9 @@ public class ReVancedSettingsFragment extends PreferenceFragment {
 
     private final CharSequence[] videoSpeedEntries = {str("quality_auto"), "0.25x", "0.5x", "0.75x", str("shorts_speed_control_normal_label"), "1.25x", "1.5x", "1.75x", "2x"};
     private final CharSequence[] videoSpeedentryValues = {"-2.0", "0.25", "0.5", "0.75", "1.0", "1.25", "1.5", "1.75", "2.0"};
-    public static final String[] DownloaderNameList = {"PowerTube", "NewPipe", "NewPipe_SponsorBlock", "Seal"};
-    public static final String[] DownloaderPackageNameList = {"ussr.razar.youtube_dl", "org.schabi.newpipe", "org.polymorphicshade.newpipe", "com.junkfood.seal"};
-    public static final String[] DownloaderURLList = {"https://github.com/razar-dev/PowerTube/releases/latest", "https://github.com/TeamNewPipe/NewPipe/releases/latest", "https://github.com/polymorphicshade/NewPipe/releases/latest", "https://github.com/JunkFood02/Seal/releases/latest"};
+    public static final String[] DownloaderNameList = {"Seal", "YTDLnis", "NewPipe", "Tubular"};
+    public static final String[] DownloaderPackageNameList = {"com.junkfood.seal", "com.deniscerri.ytdl", "org.schabi.newpipe", "org.polymorphicshade.tubular"};
+    public static final String[] DownloaderURLList = {"https://github.com/JunkFood02/Seal/releases/latest", "https://github.com/deniscerri/ytdlnis/releases/latest", "https://github.com/TeamNewPipe/NewPipe/releases/latest", "https://github.com/polymorphicshade/Tubular/releases/latest"};
 
     @SuppressLint("SuspiciousIndentation")
     SharedPreferences.OnSharedPreferenceChangeListener listener = (sharedPreferences, str) -> {
