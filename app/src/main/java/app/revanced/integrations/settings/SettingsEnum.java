@@ -162,7 +162,6 @@ public enum SettingsEnum {
     ENABLE_OPEN_LINKS_DIRECTLY("revanced_enable_open_links_directly", true, ReturnType.BOOLEAN),
     ENABLE_TABLET_LAYOUT("revanced_enable_tablet_layout", false, ReturnType.BOOLEAN, true, "revanced_reboot_warning_tablet"),
     ENABLE_PHONE_LAYOUT("revanced_enable_phone_layout", false, ReturnType.BOOLEAN, true, "revanced_reboot_warning_phone"),
-    ENABLE_VP9_CODEC("revanced_enable_vp9_codec", false, ReturnType.BOOLEAN, true, "revanced_reboot_warning_vp9"),
     SPOOF_APP_VERSION_TARGET("revanced_spoof_app_version_target", "", ReturnType.STRING, true),
 
     // PreferenceScreen: Miscellaneous - Spoof streaming data
