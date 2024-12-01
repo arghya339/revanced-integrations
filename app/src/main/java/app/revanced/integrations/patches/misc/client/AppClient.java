@@ -157,7 +157,8 @@ public class AppClient {
                 null,
                 OS_VERSION_WEB,
                 null,
-                USER_AGENT_WEB
+                USER_AGENT_WEB,
+                true
         ),
         ANDROID(3,
                 null,
@@ -166,7 +167,8 @@ public class AppClient {
                 OS_NAME_ANDROID,
                 OS_VERSION_ANDROID,
                 ANDROID_SDK_VERSION_ANDROID,
-                USER_AGENT_ANDROID
+                USER_AGENT_ANDROID,
+                true
         ),
         IOS(5,
                 DEVICE_MAKE_IOS,
@@ -175,7 +177,8 @@ public class AppClient {
                 OS_NAME_IOS,
                 OS_VERSION_IOS,
                 null,
-                USER_AGENT_IOS
+                USER_AGENT_IOS,
+                false
         ),
         ANDROID_CREATOR(14,
                 null,
@@ -184,7 +187,8 @@ public class AppClient {
                 OS_NAME_ANDROID,
                 OS_VERSION_ANDROID,
                 ANDROID_SDK_VERSION_ANDROID,
-                USER_AGENT_ANDROID_CREATOR
+                USER_AGENT_ANDROID_CREATOR,
+                true
         ),
         ANDROID_VR(28,
                 null,
@@ -193,7 +197,8 @@ public class AppClient {
                 OS_NAME_ANDROID,
                 OS_VERSION_ANDROID_VR,
                 ANDROID_SDK_VERSION_ANDROID_VR,
-                USER_AGENT_ANDROID_VR
+                USER_AGENT_ANDROID_VR,
+                true
         ),
         ANDROID_UNPLUGGED(29,
                 null,
@@ -202,7 +207,8 @@ public class AppClient {
                 OS_NAME_ANDROID,
                 OS_VERSION_ANDROID_UNPLUGGED,
                 ANDROID_SDK_VERSION_ANDROID_UNPLUGGED,
-                USER_AGENT_ANDROID_UNPLUGGED
+                USER_AGENT_ANDROID_UNPLUGGED,
+                true
         ),
         ANDROID_TESTSUITE(30,
                 null,
@@ -211,7 +217,8 @@ public class AppClient {
                 OS_NAME_ANDROID,
                 OS_VERSION_ANDROID,
                 ANDROID_SDK_VERSION_ANDROID,
-                USER_AGENT_ANDROID_TESTSUITE
+                USER_AGENT_ANDROID_TESTSUITE,
+                false
         ),
         ANDROID_EMBEDDED_PLAYER(55,
                 null,
@@ -220,7 +227,8 @@ public class AppClient {
                 OS_NAME_ANDROID,
                 OS_VERSION_ANDROID,
                 ANDROID_SDK_VERSION_ANDROID,
-                USER_AGENT_ANDROID
+                USER_AGENT_ANDROID,
+                true
         ),
         TVHTML5_SIMPLY_EMBEDDED_PLAYER(85,
                 null,
@@ -229,7 +237,8 @@ public class AppClient {
                 null,
                 OS_VERSION_WEB,
                 null,
-                USER_AGENT_WEB
+                USER_AGENT_WEB,
+                false
         );
 
         public final String friendlyName;
@@ -249,7 +258,7 @@ public class AppClient {
         /**
          * Device model, equivalent to {@link Build#MODEL} (System property: ro.product.model)
          */
-        public final String model;
+        public final String deviceModel;
 
         /**
          * Device OS name.
@@ -276,19 +285,32 @@ public class AppClient {
         /**
          * App version.
          */
-        public final String appVersion;
+        public final String clientVersion;
 
-        ClientType(int id, @Nullable String make, String model, String appVersion, @Nullable String osName,
-                   String osVersion, Integer androidSdkVersion, String userAgent) {
+        /**
+         * If the client can access the API logged in.
+         */
+        public final boolean canLogin;
+
+        ClientType(int id,
+                   @Nullable String make,
+                   String deviceModel,
+                   String clientVersion,
+                   @Nullable String osName,
+                   String osVersion,
+                   Integer androidSdkVersion,
+                   String userAgent,
+                   boolean canLogin) {
             this.friendlyName = str("revanced_spoof_streaming_data_type_entry_" + name().toLowerCase());
             this.id = id;
             this.make = make;
-            this.model = model;
-            this.appVersion = appVersion;
+            this.deviceModel = deviceModel;
+            this.clientVersion = clientVersion;
             this.osName = osName;
             this.osVersion = osVersion;
             this.androidSdkVersion = androidSdkVersion;
             this.userAgent = userAgent;
+            this.canLogin = canLogin;
         }
     }
 }

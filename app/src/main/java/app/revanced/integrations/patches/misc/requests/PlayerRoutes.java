@@ -24,19 +24,6 @@ public final class PlayerRoutes {
                     "&alt=proto"
     ).compile();
 
-    static final Route.CompiledRoute GET_PLAYLIST_PAGE = new Route(
-            Route.Method.POST,
-            "next" +
-                    "?fields=contents.singleColumnWatchNextResults.playlist.playlist"
-    ).compile();
-
-    static final Route.CompiledRoute GET_LIVE_STREAM_RENDERER = new Route(
-            Route.Method.POST,
-            "player" +
-                    "?fields=playabilityStatus.status," +
-                    "videoDetails.isLiveContent"
-    ).compile();
-
     /**
      * TCP connection and HTTP read timeout
      */
@@ -57,8 +44,8 @@ public final class PlayerRoutes {
 
             JSONObject client = new JSONObject();
             client.put("clientName", clientType.name());
-            client.put("clientVersion", clientType.appVersion);
-            client.put("deviceModel", clientType.model);
+            client.put("clientVersion", clientType.clientVersion);
+            client.put("deviceModel", clientType.deviceModel);
             client.put("osVersion", clientType.osVersion);
             if (clientType.make != null) {
                 client.put("deviceMake", clientType.make);

@@ -168,8 +168,7 @@ public enum SettingsEnum {
     // The order of the settings should not be changed otherwise the app may crash
     SPOOF_STREAMING_DATA("revanced_spoof_streaming_data", true, ReturnType.BOOLEAN, true),
     SPOOF_STREAMING_DATA_IOS_FORCE_AVC("revanced_spoof_streaming_data_ios_force_avc", false, ReturnType.BOOLEAN, true),
-    SPOOF_STREAMING_DATA_IOS_COMPATIBILITY("revanced_spoof_streaming_data_ios_compatibility", true, ReturnType.BOOLEAN, true),
-    SPOOF_STREAMING_DATA_TYPE("revanced_spoof_streaming_data_type", ClientType.IOS.toString(), ReturnType.STRING, true),
+    SPOOF_STREAMING_DATA_TYPE("revanced_spoof_streaming_data_type", ClientType.ANDROID_VR.toString(), ReturnType.STRING, true),
     SPOOF_STREAMING_DATA_STATS_FOR_NERDS("revanced_spoof_streaming_data_stats_for_nerds", true, ReturnType.BOOLEAN),
 
     IGNORE_CHECK_WATCH_HISTORY_DOMAIN_NAME("revanced_ignore_check_watch_history_domain_name", false, ReturnType.BOOLEAN),
