@@ -18,6 +18,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+import android.view.View;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +28,7 @@ import app.revanced.integrations.patches.button.AutoRepeat;
 import app.revanced.integrations.patches.button.Copy;
 import app.revanced.integrations.patches.button.CopyWithTimeStamp;
 import app.revanced.integrations.patches.button.Download;
+import app.revanced.integrations.patches.misc.client.DeviceHardwareSupport;
 import app.revanced.integrations.patches.video.VideoQualityPatch;
 import app.revanced.integrations.settings.SettingsEnum;
 import app.revanced.integrations.utils.LogHelper;
@@ -44,9 +46,9 @@ public class ReVancedSettingsFragment extends PreferenceFragment {
 
     private final CharSequence[] videoSpeedEntries = {str("quality_auto"), "0.25x", "0.5x", "0.75x", str("shorts_speed_control_normal_label"), "1.25x", "1.5x", "1.75x", "2x"};
     private final CharSequence[] videoSpeedentryValues = {"-2.0", "0.25", "0.5", "0.75", "1.0", "1.25", "1.5", "1.75", "2.0"};
-    public static final String[] DownloaderNameList = {"PowerTube", "NewPipe", "NewPipe_SponsorBlock", "Seal"};
-    public static final String[] DownloaderPackageNameList = {"ussr.razar.youtube_dl", "org.schabi.newpipe", "org.polymorphicshade.newpipe", "com.junkfood.seal"};
-    public static final String[] DownloaderURLList = {"https://github.com/razar-dev/PowerTube/releases/latest", "https://github.com/TeamNewPipe/NewPipe/releases/latest", "https://github.com/polymorphicshade/NewPipe/releases/latest", "https://github.com/JunkFood02/Seal/releases/latest"};
+    public static final String[] DownloaderNameList = {"Seal", "YTDLnis", "NewPipe", "Tubular"};
+    public static final String[] DownloaderPackageNameList = {"com.junkfood.seal", "com.deniscerri.ytdl", "org.schabi.newpipe", "org.polymorphicshade.tubular"};
+    public static final String[] DownloaderURLList = {"https://github.com/JunkFood02/Seal/releases/latest", "https://github.com/deniscerri/ytdlnis/releases/latest", "https://github.com/TeamNewPipe/NewPipe/releases/latest", "https://github.com/polymorphicshade/Tubular/releases/latest"};
 
     @SuppressLint("SuspiciousIndentation")
     SharedPreferences.OnSharedPreferenceChangeListener listener = (sharedPreferences, str) -> {
@@ -164,6 +166,7 @@ public class ReVancedSettingsFragment extends PreferenceFragment {
 
             setPatchesInfomation();
             setSpoofAppVersionInfo();
+            setSpoofStreamDataIosH264Availability();
 
             for (int i = 0; i < DownloaderNameList.length ; i++) {
                 int index = i;
@@ -310,6 +313,17 @@ public class ReVancedSettingsFragment extends PreferenceFragment {
                 .setIntent(
                         new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/kitadai31/revanced-patches-android6-7/wiki/Spoof-app-version-information"))
                 );
+    }
+
+    public void setSpoofStreamDataIosH264Availability() {
+        if (!DeviceHardwareSupport.DEVICE_HAS_HARDWARE_DECODING_VP9) {
+            String msg = "H.264 will always be used because your device doesn't support VP9.";
+            SwitchPreference pref = (SwitchPreference) findPreferenceOnScreen("revanced_spoof_streaming_data_ios_force_avc");
+            pref.setEnabled(false);
+            pref.setSummary(msg);
+            pref.setSummaryOff(msg);
+            pref.setSummaryOn(msg);
+        }
     }
 
     public static void reboot(Activity activity) {

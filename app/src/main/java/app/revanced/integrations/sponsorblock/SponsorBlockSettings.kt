@@ -148,7 +148,7 @@ object SponsorBlockSettings {
             sf("segments_intermission"),
             sf("skipped_intermission"),
             sf("segments_intermission_sum"),
-            SegmentBehaviour.SKIP_AUTOMATICALLY,
+            SegmentBehaviour.SKIP_AUTOMATICALLY_ONCE,
             -0xff0001
         ),
         OUTRO(
@@ -156,7 +156,7 @@ object SponsorBlockSettings {
             sf("segments_endcards"),
             sf("skipped_endcard"),
             sf("segments_endcards_sum"),
-            SegmentBehaviour.SKIP_AUTOMATICALLY,
+            SegmentBehaviour.SKIP_AUTOMATICALLY_ONCE,
             -0xfdfd13
         ),
         INTERACTION(
@@ -164,7 +164,7 @@ object SponsorBlockSettings {
             sf("segments_subscribe"),
             sf("skipped_subscribe"),
             sf("segments_subscribe_sum"),
-            SegmentBehaviour.SKIP_AUTOMATICALLY,
+            SegmentBehaviour.SKIP_AUTOMATICALLY_ONCE,
             -0x33ff01
         ),
         SELF_PROMO(
@@ -180,7 +180,7 @@ object SponsorBlockSettings {
             sf("segments_nomusic"),
             sf("skipped_nomusic"),
             sf("segments_nomusic_sum"),
-            SegmentBehaviour.SKIP_AUTOMATICALLY,
+            SegmentBehaviour.MANUAL_SKIP,
             -0x6700
         ),
         PREVIEW(
@@ -188,7 +188,7 @@ object SponsorBlockSettings {
             sf("segments_preview"),
             sf("skipped_preview"),
             sf("segments_preview_sum"),
-            SegmentBehaviour.SKIP_AUTOMATICALLY,
+            SegmentBehaviour.SKIP_AUTOMATICALLY_ONCE,
             -0xff702a
         ),
         FILLER(
@@ -196,7 +196,7 @@ object SponsorBlockSettings {
             sf("segments_filler"),
             sf("skipped_filler"),
             sf("segments_filler_sum"),
-            SegmentBehaviour.MANUAL_SKIP,
+            SegmentBehaviour.SKIP_AUTOMATICALLY_ONCE,
             -0x8cff01
         ),
         UNSUBMITTED(
